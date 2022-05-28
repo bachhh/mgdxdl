@@ -23,7 +23,7 @@ class ChapterImages:
         chapter_id,
         start_page=None,
         end_page=None,
-        data_saver=False
+        data_saver=False,
     ) -> None:
         self.id = chapter_id
         self.data_saver = data_saver
@@ -96,7 +96,8 @@ class Chapter:
         _id=None,
         data=None,
         use_group_name=True,
-        use_chapter_title=False
+        use_chapter_title=False,
+        zero_pad=3,
     ):
         if _id and data:
             raise ValueError("_id and data cannot be together")
@@ -134,6 +135,7 @@ class Chapter:
         self.oneshot = False
         self.use_group_name = use_group_name
         self.use_chapter_title = use_chapter_title
+        self.zero_pad = zero_pad
 
         self._lang = Language(self._attr['translatedLanguage'])
 
@@ -191,9 +193,9 @@ class Chapter:
         else:
             # Get combined volume and chapter
             if self.volume is not None:
-                name += f'Volume. {self.volume} '
+                name += f'Volume. {str(self.volume).zfill(self.zero_pad)} '
 
-            name += f'Chapter. {self.chapter}' 
+            name += f'Chapter. {str(self.chapter).zfill(self.zero_pad)}' 
 
         self._name = name.strip()
 
@@ -414,7 +416,8 @@ class MangaChapter:
         if chapter:
             self._parse_volumes_from_chapter(chapter)
         elif all_chapters:
-            self._parse_volumes(get_all_chapters(manga.id, self._lang.value))
+            all_chaps = get_all_chapters(manga.id, self._lang.value)
+            self._parse_volumes(all_chaps)
 
     def iter(self, *args, **kwargs):
         return IteratorChapter(self._volumes, *args, **kwargs)
